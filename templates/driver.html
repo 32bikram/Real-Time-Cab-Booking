@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TAXWE Driver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="card">
+
+    <!-- WAITING -->
+    <div id="waitingSection">
+        <h2>Driver Panel</h2>
+        <p id="requestText">Waiting for ride request...</p>
+    </div>
+
+    <!-- REQUEST RECEIVED -->
+    <div id="requestSection" style="display:none;">
+        <h2>New Ride Request</h2>
+        <p id="rideDetails"></p>
+        <button onclick="acceptRide()">Accept Ride</button>
+    </div>
+
+    <!-- OTP VERIFY -->
+    <div id="otpSection" style="display:none;">
+        <h2>Enter OTP</h2>
+        <input id="otpInput" placeholder="Enter OTP from client">
+        <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+
+    <!-- RIDE ONGOING -->
+    <div id="rideSection" style="display:none;">
+        <h2>Ride Ongoing 🚕</h2>
+        <button onclick="completeRide()">Complete Ride</button>
+    </div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+<script>
+var socket = io("http://127.0.0.1:5000");
+
+/* 🔌 CONNECT DEBUG */
+socket.on("connect", () => {
+    console.log("Driver connected:", socket.id);
+});
+
+/* 🚕 NEW REQUEST */
+socket.on("new_request", data => {
+    document.getElementById("waitingSection").style.display = "none";
+    document.getElementById("requestSection").style.display = "block";
+
+    document.getElementById("rideDetails").innerText =
+        "Pickup: " + data.source + " → Drop: " + data.dest;
+});
+
+/* ✅ ACCEPT RIDE */
+function acceptRide(){
+    socket.emit("accept_ride");
+
+    document.getElementById("requestSection").style.display = "none";
+    document.getElementById("otpSection").style.display = "block";
+}
+
+/* 🔐 VERIFY OTP */
+function verifyOTP(){
+    let otp = document.getElementById("otpInput").value;
+    socket.emit("verify_otp", {otp});
+}
+
+/* ❌ WRONG OTP */
+socket.on("otp_failed", () => {
+    alert("Wrong OTP! Try again.");
+});
+
+/* 🚕 RIDE STARTED */
+socket.on("otp_success", () => {
+    document.getElementById("otpSection").style.display = "none";
+    document.getElementById("rideSection").style.display = "block";
+});
+
+/* 🏁 COMPLETE RIDE */
+function completeRide(){
+    socket.emit("complete_ride");
+
+    document.getElementById("rideSection").innerHTML = `
+        <h2>Ride Completed ✅</h2>
+        <p>Waiting for payment...</p>
+    `;
+}
+
+/* 💰 PAYMENT RECEIVED */
+socket.on("payment_success", () => {
+    alert("Payment received 💰");
+
+    // Reset UI
+    location.reload();
+});
+</script>
+
+</body>
+</html>
