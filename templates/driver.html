@@ -9,29 +9,28 @@
 
 <div class="card">
 
+    <h2>Driver Panel</h2>
+
     <!-- WAITING -->
     <div id="waitingSection">
-        <h2>Driver Panel</h2>
         <p id="requestText">Waiting for ride request...</p>
     </div>
 
-    <!-- REQUEST RECEIVED -->
+    <!-- REQUEST -->
     <div id="requestSection" style="display:none;">
-        <h2>New Ride Request</h2>
         <p id="rideDetails"></p>
         <button onclick="acceptRide()">Accept Ride</button>
     </div>
 
-    <!-- OTP VERIFY -->
+    <!-- OTP -->
     <div id="otpSection" style="display:none;">
-        <h2>Enter OTP</h2>
-        <input id="otpInput" placeholder="Enter OTP from client">
+        <input id="otpInput" placeholder="Enter OTP">
         <button onclick="verifyOTP()">Verify OTP</button>
     </div>
 
-    <!-- RIDE ONGOING -->
+    <!-- RIDE -->
     <div id="rideSection" style="display:none;">
-        <h2>Ride Ongoing 🚕</h2>
+        <p>Ride Ongoing 🚕</p>
         <button onclick="completeRide()">Complete Ride</button>
     </div>
 
@@ -42,21 +41,14 @@
 <script>
 var socket = io("http://127.0.0.1:5000");
 
-/* 🔌 CONNECT DEBUG */
-socket.on("connect", () => {
-    console.log("Driver connected:", socket.id);
-});
-
-/* 🚕 NEW REQUEST */
 socket.on("new_request", data => {
     document.getElementById("waitingSection").style.display = "none";
     document.getElementById("requestSection").style.display = "block";
 
     document.getElementById("rideDetails").innerText =
-        "Pickup: " + data.source + " → Drop: " + data.dest;
+        "Pickup: " + data.source + " → " + data.dest;
 });
 
-/* ✅ ACCEPT RIDE */
 function acceptRide(){
     socket.emit("accept_ride");
 
@@ -64,24 +56,20 @@ function acceptRide(){
     document.getElementById("otpSection").style.display = "block";
 }
 
-/* 🔐 VERIFY OTP */
 function verifyOTP(){
     let otp = document.getElementById("otpInput").value;
     socket.emit("verify_otp", {otp});
 }
 
-/* ❌ WRONG OTP */
-socket.on("otp_failed", () => {
-    alert("Wrong OTP! Try again.");
-});
-
-/* 🚕 RIDE STARTED */
 socket.on("otp_success", () => {
     document.getElementById("otpSection").style.display = "none";
     document.getElementById("rideSection").style.display = "block";
 });
 
-/* 🏁 COMPLETE RIDE */
+socket.on("otp_failed", () => {
+    alert("Wrong OTP");
+});
+
 function completeRide(){
     socket.emit("complete_ride");
 
@@ -91,11 +79,8 @@ function completeRide(){
     `;
 }
 
-/* 💰 PAYMENT RECEIVED */
 socket.on("payment_success", () => {
     alert("Payment received 💰");
-
-    // Reset UI
     location.reload();
 });
 </script>
