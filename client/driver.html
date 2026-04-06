@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver Panel</title>
+</head>
+<body>
+
+<h2>Driver Panel</h2>
+
+<button onclick="checkRide()">Check Ride</button>
+<button onclick="acceptRide()">Accept</button>
+<button onclick="completeRide()">Complete</button>
+
+<h3 id="driverStatus"></h3>
+
+<script>
+const SERVER = "http://localhost:5000";
+
+async function checkRide() {
+    const res = await fetch(`${SERVER}/driver/status`);
+    const data = await res.json();
+
+    document.getElementById("driverStatus").innerText =
+        "Status: " + data.status + " | Price: ₹" + data.price;
+}
+
+async function acceptRide() {
+    await fetch(`${SERVER}/driver/accept`, {method: "POST"});
+    alert("Ride accepted");
+}
+
+async function completeRide() {
+    await fetch(`${SERVER}/complete`, {method: "POST"});
+    alert("Ride completed");
+}
+</script>
+<style>
+body {
+  font-family: Arial;
+  padding: 20px;
+  background: #f4f6f8;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  border: none;
+  background: black;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+</style>
+
+</body>
+</html>

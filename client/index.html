@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Uber Clone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🚕 Uber Clone - Customer</h1>
+
+  <div class="card">
+    <h3>Login</h3>
+    <input id="phone" placeholder="Enter phone">
+    <button onclick="sendOTP()">Send OTP</button>
+
+    <input id="otp" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Verify</button>
+  </div>
+
+  <div class="card">
+    <h3>Book Ride</h3>
+    <button onclick="bookRide()">Book Ride</button>
+    <p id="price"></p>
+    <p id="driver"></p>
+    <p id="status"></p>
+  </div>
+
+  <div class="card">
+    <h3>Rate Ride</h3>
+    <input id="rating" placeholder="Rate 1-5">
+    <button onclick="rateRide()">Submit Rating</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
